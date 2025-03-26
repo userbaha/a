@@ -1,0 +1,2 @@
+// config.js
+const TELEGRAM_TOKEN = "8191930366:AAF3nZYU_QC_wOpW-xKMvzwHVCKFN-KecxU";
